@@ -169,7 +169,7 @@ def capitalize_first_letter(sentence):
 
 
 def prepare_data():
-    data = pd.read_csv('clean_data/new_jewelry.csv')
+    data = pd.read_csv('private_repo/clean_data/new_jewelry.csv')
     data.drop_duplicates(inplace=True)
     
     for idx, row in data.iterrows():
@@ -308,7 +308,7 @@ def final_prep():
     to_add.to_csv('private_repo/clean_data/to_create.csv', index=False)
     
     new = data[data['SKU'].isin(all_skus['SKU'])]
-    old  = pd.read_csv('clean_data/old_jewelry_cleaned.csv').drop_duplicates(subset=['SKU'], keep='first')
+    old  = pd.read_csv('private_repo/clean_data/old_jewelry_cleaned.csv').drop_duplicates(subset=['SKU'], keep='first')
     merged_data = pd.merge(old[['SKU', 'Qty']], new[['SKU', 'Qty']], on='SKU', suffixes=('_old', '_new'))
     diff_qty = merged_data[merged_data['Qty_old'] != merged_data['Qty_new']]
     
