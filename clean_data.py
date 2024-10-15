@@ -298,6 +298,15 @@ def prepare_data():
             
             
 def final_prep():
+    data = pd.read_csv('private_repo/clean_data/new_jewelry.csv')
+    out_of_stock = data[data['Stock Status'] == 'OUT OF STOCK']
+    out_of_stock.to_csv('private_repo/clean_data/zero_inventory2.csv')
+    
+    print('Number of out of stock entries:', len(out_of_stock))
+    
+    data.drop(index=out_of_stock.index, inplace=True)
+    data.to_csv('private_repo/clean_data/new_jewelry.csv')
+    
     prepare_data()
     
     data = pd.read_csv('private_repo/clean_data/new_jewelry_cleaned.csv').drop_duplicates(subset=['SKU'], keep='first')
@@ -318,7 +327,6 @@ def final_prep():
     # add new SKUs
     if len(to_add) > 0:
         all_skus = pd.concat([all_skus['SKU'], to_add['SKU']], ignore_index=True)
-        print('All skus:', all_skus)
         all_skus.to_csv('private_repo/clean_data/all_skus.csv', index=False)
     
     
@@ -331,3 +339,5 @@ def final_prep():
     data.to_csv('private_repo/clean_data/old_jewelry_cleaned.csv', index=False)
     data.to_csv('private_repo/clean_data/new_jewelry_cleaned.csv', index=False)
     
+
+final_prep()

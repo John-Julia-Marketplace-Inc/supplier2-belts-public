@@ -10,11 +10,10 @@ import os
 from clean_data import final_prep
 
 SUPPLIER_URL = os.getenv('SUPPLIER_URL')
-
 username = os.getenv('LOGIN')
 password = os.getenv('PASSWORD')
 
-filename = 'private_repo/clean_data/new_jewelry.csv'
+filename = 'clean_data/new_jewelry.csv'
 
 if os.path.exists(filename):
     os.remove(filename)
@@ -155,7 +154,7 @@ def get_table_data(driver):
         return table_data_v2
 
     # If neither structure has data, return an empty list
-    return []
+    return ''
 
 
 def get_general_info(driver):
@@ -222,15 +221,22 @@ def get_general_info(driver):
             product_code = product_code_element.text.split(":")[1].strip()
     except Exception as e:
         print(f"Error finding product code: {e}")
-
+        
+    stock_status = 'In Stock'
+    try:
+        stock_status = driver.find_element(By.CSS_SELECTOR, 'div.outofstockpdp').text
+        stock_status = 'OUT OF STOCK'
+    except:
+        pass
+    
     size_and_fit_info, details_info = get_size_and_fit_details(driver)
     sizes_and_quantities = get_table_data(driver)
 
         
     if discounted_cost != 'N/A':    
-        return product_name, brand_name, product_image_links_str, discounted_cost, not_discounted_cost, product_code, details_info, size_and_fit_info, description, sizes_and_quantities, collection, breadcrumbs
+        return product_name, brand_name, product_image_links_str, discounted_cost, not_discounted_cost, product_code, details_info, size_and_fit_info, description, sizes_and_quantities, collection, breadcrumbs, stock_status
     else:
-        return product_name, brand_name, product_image_links_str, price, price, product_code, details_info, size_and_fit_info, description, sizes_and_quantities, collection, breadcrumbs
+        return product_name, brand_name, product_image_links_str, price, price, product_code, details_info, size_and_fit_info, description, sizes_and_quantities, collection, breadcrumbs, stock_status
 
 
 def parser(url, collection, pages):
@@ -297,7 +303,7 @@ def parser(url, collection, pages):
                         EC.presence_of_element_located((By.CSS_SELECTOR, 'div.single-image img'))
                     )
                     
-                    product_name, brand_name, product_image_links_str, discounted_cost, not_discounted_cost, product_code, details, size_and_fit, description, sizes_and_quantities, collection, breadcrumbs = get_general_info(driver)
+                    product_name, brand_name, product_image_links_str, discounted_cost, not_discounted_cost, product_code, details, size_and_fit, description, sizes_and_quantities, collection, breadcrumbs, stock_status = get_general_info(driver)
                     
                     sizes_and_quantities = preprocess_sizes_quantities(sizes_and_quantities)
                     
@@ -310,6 +316,7 @@ def parser(url, collection, pages):
                         'Breadcrumbs': [breadcrumbs],
                         'Details': [details],
                         'Size and Fit': [size_and_fit],
+                        'Stock Status': [stock_status],
                         'Description': [description],
                         'Collection': [collection],
                         'Sizes and Quantities': [sizes_and_quantities],
