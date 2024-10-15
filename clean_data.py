@@ -318,19 +318,12 @@ def final_prep():
     to_add = data[~data['SKU'].isin(all_skus['SKU'])]
     to_add.to_csv('private_repo/clean_data/to_create.csv', index=False)
     
-    new = data[data['SKU'].isin(all_skus['SKU'])]
-    old  = pd.read_csv('private_repo/clean_data/old_jewelry_cleaned.csv').drop_duplicates(subset=['SKU'], keep='first')
-    merged_data = pd.merge(old[['SKU', 'Qty']], new[['SKU', 'Qty']], on='SKU', suffixes=('_old', '_new'))
-    diff_qty = merged_data[merged_data['Qty_old'] != merged_data['Qty_new']]
-    
-    new2 = new[new['SKU'].isin(diff_qty['SKU'])]
-    new2.to_csv('private_repo/clean_data/to_update.csv', index=False)
+    data.to_csv('private_repo/clean_data/new_jewelry_cleaned.csv', index=False)
+    print('Data length:', len(data))
     
     # add new SKUs
-    if len(to_add) > 0:
-        all_skus = pd.concat([all_skus['SKU'], to_add['SKU']], ignore_index=True)
-        all_skus.to_csv('private_repo/clean_data/all_skus.csv', index=False)
-    
+    all_skus = pd.concat([all_skus['SKU'], to_add['SKU']], ignore_index=True)
+    all_skus.drop_duplicates().to_csv('private_repo/clean_data/all_skus.csv', index=False)
     
     all_skus = pd.read_csv('private_repo/clean_data/all_skus.csv')
     
