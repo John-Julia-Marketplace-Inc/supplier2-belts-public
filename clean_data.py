@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 
 filename = 'private_repo/clean_data/new_jewelry_cleaned.csv'
+INPUT_FILE = 'private_repo/clean_data/new_jewelry.csv'
 
 if os.path.exists(filename):
     os.remove(filename)
@@ -169,7 +170,7 @@ def capitalize_first_letter(sentence):
 
 
 def prepare_data():
-    data = pd.read_csv('private_repo/clean_data/new_jewelry.csv')
+    data = pd.read_csv(INPUT_FILE)
     data.drop_duplicates(inplace=True)
     
     for idx, row in data.iterrows():
@@ -298,18 +299,19 @@ def prepare_data():
             
             
 def final_prep():
-    data = pd.read_csv('private_repo/clean_data/new_jewelry.csv')
+    data = pd.read_csv(INPUT_FILE)
+    data = data.loc[:, ~data.columns.str.contains('^Unnamed:')]
     out_of_stock = data[data['Stock Status'] == 'OUT OF STOCK']
-    out_of_stock.to_csv('private_repo/clean_data/zero_inventory2.csv')
+    out_of_stock.to_csv('private_repo/clean_data/zero_inventory2.csv', index=False)
     
     print('Number of out of stock entries:', len(out_of_stock))
     
     data.drop(index=out_of_stock.index, inplace=True)
-    data.to_csv('private_repo/clean_data/new_jewelry.csv')
+    data.to_csv(INPUT_FILE, index=False)
     
     prepare_data()
     
-    data = pd.read_csv('private_repo/clean_data/new_jewelry_cleaned.csv').drop_duplicates(subset=['SKU'], keep='first')
+    data = pd.read_csv(filename).drop_duplicates(subset=['SKU'], keep='first')
     all_skus = pd.read_csv('private_repo/clean_data/all_skus.csv')
     
     # get products to add
